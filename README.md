@@ -1,36 +1,124 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Yummilicious
 
-## Getting Started
+Premium homemade fast-food ecommerce for **Yummilicious** — Next.js, MongoDB, NextAuth, Cloudinary.
 
-First, run the development server:
+**Tagline:** Homemade Comfort. Unforgettable Flavour.
+
+**Ordering windows (Asia/Karachi):** 9:00 AM – 12:00 PM & 8:00 PM – 11:00 PM  
+Orders outside these hours are blocked on the storefront and at checkout.
+
+**Contact:** [yummilicious321@gmail.com](mailto:yummilicious321@gmail.com) · 03369863734
+
+## Stack
+
+- Next.js (App Router) + TypeScript + Tailwind CSS
+- Framer Motion + GSAP ScrollTrigger + Lenis
+- MongoDB + Mongoose
+- NextAuth (credentials) for admin
+- Cloudinary for media
+- Zustand cart, React Hook Form + Zod, Recharts, Sonner
+
+## Quick start
+
+### 1. Install
+
+```bash
+npm install
+```
+
+### 2. Environment
+
+```bash
+cp .env.example .env.local
+```
+
+Set at least:
+
+- `MONGODB_URI` — local or Atlas connection string
+- `NEXTAUTH_SECRET` — random string (`openssl rand -base64 32`)
+- `NEXTAUTH_URL` — `http://localhost:3000` in development
+- `ADMIN_EMAIL` / `ADMIN_PASSWORD` — used by the seed script
+
+### 3. MongoDB
+
+Install and run MongoDB locally, or create a free [MongoDB Atlas](https://www.mongodb.com/atlas) cluster and paste the URI into `.env.local`.
+
+### 4. Seed the database
+
+```bash
+npm run seed
+```
+
+This creates categories, all 17 products (with variants/options/add-ons), gallery images, site content, settings, and one admin user.
+
+### 5. Develop
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Storefront: [http://localhost:3000](http://localhost:3000)
+- Admin: [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 6. Production build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm start
+```
 
-## Learn More
+## Cloudinary (optional)
 
-To learn more about Next.js, take a look at the following resources:
+1. Create a Cloudinary account  
+2. Copy Cloud name, API key, and API secret into `.env.local`  
+3. Admin Media / product uploads will use Cloudinary  
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Without Cloudinary, the upload API returns a clear error / placeholder so the rest of the app still works.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Admin
+
+After seeding, sign in with `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
+
+Manage products, categories, add-ons, orders, customers, content, gallery, media, and store settings (including ordering shifts).
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Push the repo to GitHub  
+2. Import the project in Vercel  
+3. Add all environment variables from `.env.example`  
+4. Set `NEXTAUTH_URL` and `NEXT_PUBLIC_SITE_URL` to your production domain  
+5. Use MongoDB Atlas for `MONGODB_URI`  
+6. Deploy, then run the seed once against Atlas:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+MONGODB_URI="your-atlas-uri" ADMIN_EMAIL="..." ADMIN_PASSWORD="..." npm run seed
+```
+
+## Scripts
+
+| Command        | Description              |
+|----------------|--------------------------|
+| `npm run dev`  | Development server       |
+| `npm run build`| Production build         |
+| `npm start`    | Start production server  |
+| `npm run lint` | ESLint                   |
+| `npm run seed` | Seed MongoDB             |
+| `npm run typecheck` | TypeScript check    |
+
+## Project structure
+
+```
+src/
+  app/(store)/     # Customer storefront routes
+  app/admin/       # Admin portal
+  app/api/         # Route handlers
+  components/      # UI, home, product, cart, admin, animations
+  models/          # Mongoose models
+  lib/             # auth, db, pricing, store-hours, validations
+  store/           # Zustand cart
+scripts/seed.ts    # Database seed
+```
+
+## Licence
+
+Private — Yummilicious brand project.
