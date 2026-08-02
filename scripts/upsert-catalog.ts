@@ -100,14 +100,14 @@ async function upsertCatalog() {
   const breakfastAddonIds = BREAKFAST_ADDONS.map((a) => addonIdBySlug[a.slug]).filter(
     Boolean
   );
-  const wrapSlugs = new Set(WRAP_ADDON_PRODUCT_SLUGS);
+  const wrapSlugs = new Set<string>(WRAP_ADDON_PRODUCT_SLUGS);
 
   for (const p of FALLBACK_PRODUCTS) {
     const categoryIds = p.categories
       .map((c) => catIdBySlug[c.slug])
       .filter(Boolean);
 
-    const addonIds = [];
+    const addonIds: (typeof wrapAddonIds)[number][] = [];
     if (wrapSlugs.has(p.slug)) addonIds.push(...wrapAddonIds);
     if (p.categories.some((c) => c.slug === "breakfast")) {
       addonIds.push(...breakfastAddonIds);
