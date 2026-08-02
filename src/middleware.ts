@@ -1,5 +1,8 @@
-import { auth } from "@/lib/auth/auth";
+import NextAuth from "next-auth";
 import { NextResponse } from "next/server";
+import { authConfig } from "@/lib/auth/auth.config";
+
+const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const isAdminRoute = req.nextUrl.pathname.startsWith("/admin");
@@ -12,6 +15,8 @@ export default auth((req) => {
   if (isLogin && req.auth) {
     return NextResponse.redirect(new URL("/admin", req.url));
   }
+
+  return NextResponse.next();
 });
 
 export const config = {

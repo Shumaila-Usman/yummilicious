@@ -1,4 +1,3 @@
-import nodemailer from "nodemailer";
 import { CONTACT } from "@/lib/data/fallback";
 
 export function isEmailConfigured(): boolean {
@@ -20,19 +19,6 @@ export function getOwnerEmail() {
   return process.env.OWNER_EMAIL || process.env.SMTP_USER || CONTACT.email;
 }
 
-function createTransport() {
-  const port = Number(process.env.SMTP_PORT || 587);
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port,
-    secure: port === 465 || process.env.SMTP_SECURE === "true",
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
-}
-
 export async function sendEmail(input: {
   to: string | string[];
   subject: string;
@@ -46,7 +32,18 @@ export async function sendEmail(input: {
   }
 
   try {
-    const transport = createTransport();
+    // Dynamic import keeps nodemailer out of Edge bundles
+    const nodemailer = await import("nodemailer");
+    const port = Number(process.env.SMTP_PORT || 587);
+    const transport = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port,
+      secure: port === 465 || process.env.SMTP_SECURE === "true",
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
     await transport.sendMail({
       from: getFromAddress(),
       to: Array.isArray(input.to) ? input.to.join(", ") : input.to,
