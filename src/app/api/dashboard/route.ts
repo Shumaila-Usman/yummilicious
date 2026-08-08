@@ -4,6 +4,11 @@ import { requireAdmin } from "@/lib/auth/require-admin";
 import { Order } from "@/models/Order";
 import { Product } from "@/models/Product";
 import { Category } from "@/models/Category";
+import { Customer } from "@/models/Customer";
+import { GalleryImage } from "@/models/GalleryImage";
+import { Testimonial } from "@/models/Testimonial";
+import { Faq } from "@/models/Faq";
+import { Settings } from "@/models/Settings";
 import { serialize } from "@/lib/api/helpers";
 
 export async function GET() {
@@ -35,6 +40,12 @@ export async function GET() {
       salesChart,
       allProducts,
       categories,
+      productCount,
+      customerCount,
+      galleryCount,
+      testimonialCount,
+      faqCount,
+      settings,
     ] = await Promise.all([
       Order.countDocuments(baseFilter),
       Order.countDocuments({ ...baseFilter, createdAt: { $gte: startOfToday } }),
@@ -94,6 +105,12 @@ export async function GET() {
       ]),
       Product.find({ isDeleted: false }).select("_id categories name").lean(),
       Category.find({ isActive: true }).select("_id name slug").lean(),
+      Product.countDocuments({ isDeleted: false }),
+      Customer.countDocuments(),
+      GalleryImage.countDocuments({ isActive: true }),
+      Testimonial.countDocuments({ isActive: true }),
+      Faq.countDocuments({ isActive: true }),
+      Settings.findOne().select("storeOpen brandName businessHours").lean(),
     ]);
 
     const productCategoryMap = new Map(
@@ -156,6 +173,13 @@ export async function GET() {
           pendingOrders,
           completedOrders,
           revenue: revenueAgg[0]?.total ?? 0,
+          productCount,
+          categoryCount: categories.length,
+          customerCount,
+          galleryCount,
+          testimonialCount,
+          faqCount,
+          storeOpen: settings?.storeOpen ?? true,
         },
         bestSellers,
         recentOrders,

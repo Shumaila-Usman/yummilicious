@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,7 +26,7 @@ import type { z } from "zod";
 
 type ContactForm = z.infer<typeof contactSchema>;
 
-const INSTAGRAM = [
+const DEFAULT_INSTAGRAM = [
   {
     href: "https://www.instagram.com/yummilicious.pk/",
     label: "@yummilicious.pk",
@@ -42,6 +42,14 @@ const inputClass =
 
 export default function ContactPage() {
   const [submitting, setSubmitting] = useState(false);
+  const [siteContact, setSiteContact] = useState({
+    phone: CONTACT.phone,
+    email: CONTACT.email,
+    whatsapp: CONTACT.whatsapp,
+    address: "",
+    city: "Islamabad",
+    instagram: "",
+  });
   const {
     register,
     handleSubmit,
@@ -50,6 +58,27 @@ export default function ContactPage() {
   } = useForm<ContactForm>({
     resolver: zodResolver(contactSchema),
   });
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((s) => {
+        if (!s || s.error) return;
+        setSiteContact({
+          phone: s.phone || CONTACT.phone,
+          email: s.email || CONTACT.email,
+          whatsapp: s.whatsappNumber || CONTACT.whatsapp,
+          address: s.address || "",
+          city: s.city || "Islamabad",
+          instagram: s.socialLinks?.instagram || "",
+        });
+      })
+      .catch(() => {});
+  }, []);
+
+  const INSTAGRAM = siteContact.instagram
+    ? [{ href: siteContact.instagram, label: siteContact.instagram.replace(/^https?:\/\/(www\.)?instagram\.com\//, "@").replace(/\/$/, "") }]
+    : DEFAULT_INSTAGRAM;
 
   const onSubmit = async (data: ContactForm) => {
     setSubmitting(true);
@@ -138,7 +167,7 @@ export default function ContactPage() {
                 </h2>
 
                 <a
-                  href={`https://wa.me/${CONTACT.whatsapp}`}
+                  href={`https://wa.me/${siteContact.whatsapp}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group flex items-center gap-4 rounded-3xl border border-burgundy/10 bg-cream px-5 py-5 transition hover:-translate-y-0.5 hover:border-green/30 hover:shadow-warm"
@@ -151,14 +180,14 @@ export default function ContactPage() {
                       WhatsApp
                     </span>
                     <span className="mt-0.5 block text-sm text-muted">
-                      Fastest way · {formatPhone(CONTACT.phone)}
+                      Fastest way · {formatPhone(siteContact.phone)}
                     </span>
                   </span>
                   <ArrowUpRight className="h-5 w-5 shrink-0 text-muted transition group-hover:text-green" />
                 </a>
 
                 <a
-                  href={`tel:${CONTACT.phone}`}
+                  href={`tel:${siteContact.phone}`}
                   className="group flex items-center gap-4 rounded-3xl border border-burgundy/10 bg-cream px-5 py-5 transition hover:-translate-y-0.5 hover:border-burgundy/25 hover:shadow-warm"
                 >
                   <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-burgundy text-cream shadow-md transition group-hover:scale-105">
@@ -169,14 +198,14 @@ export default function ContactPage() {
                       Call Us
                     </span>
                     <span className="mt-0.5 block text-sm text-muted">
-                      {formatPhone(CONTACT.phone)}
+                      {formatPhone(siteContact.phone)}
                     </span>
                   </span>
                   <ArrowUpRight className="h-5 w-5 shrink-0 text-muted transition group-hover:text-burgundy" />
                 </a>
 
                 <a
-                  href={`mailto:${CONTACT.email}`}
+                  href={`mailto:${siteContact.email}`}
                   className="group flex items-center gap-4 rounded-3xl border border-burgundy/10 bg-cream px-5 py-5 transition hover:-translate-y-0.5 hover:border-orange/40 hover:shadow-warm"
                 >
                   <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-orange text-cream shadow-md transition group-hover:scale-105">
@@ -187,7 +216,7 @@ export default function ContactPage() {
                       Email
                     </span>
                     <span className="mt-0.5 block truncate text-sm text-muted">
-                      {CONTACT.email}
+                      {siteContact.email}
                     </span>
                   </span>
                   <ArrowUpRight className="h-5 w-5 shrink-0 text-muted transition group-hover:text-orange" />
@@ -199,7 +228,11 @@ export default function ContactPage() {
                   </span>
                   <div>
                     <p className="font-display text-lg font-bold text-brown">Based in</p>
-                    <p className="mt-0.5 text-sm text-muted">Islamabad, Pakistan</p>
+                    <p className="mt-0.5 text-sm text-muted">
+                      {siteContact.address
+                        ? `${siteContact.address}${siteContact.city ? `, ${siteContact.city}` : ""}`
+                        : `${siteContact.city || "Islamabad"}, Pakistan`}
+                    </p>
                   </div>
                 </div>
 

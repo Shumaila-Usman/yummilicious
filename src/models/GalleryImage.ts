@@ -5,7 +5,8 @@ export interface IGalleryImage {
   alt: string;
   url: string;
   publicId?: string;
-  category: "breakfast" | "sandwiches" | "rolls" | "shawarma" | "tea" | "behind-the-scenes" | "general";
+  /** Category slug (dynamic — managed in GalleryCategory) */
+  category: string;
   displayOrder: number;
   isActive: boolean;
   createdAt: Date;
@@ -18,11 +19,7 @@ const GalleryImageSchema = new Schema<IGalleryImage>(
     alt: { type: String, required: true },
     url: { type: String, required: true },
     publicId: String,
-    category: {
-      type: String,
-      enum: ["breakfast", "sandwiches", "rolls", "shawarma", "tea", "behind-the-scenes", "general"],
-      default: "general",
-    },
+    category: { type: String, default: "general", index: true },
     displayOrder: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true },
   },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils/cn";
 const EXPLORE = [
   { href: "/", label: "Home" },
   { href: "/menu", label: "Menu" },
+  { href: "/gallery", label: "Gallery" },
   { href: "/deals", label: "Deals" },
   { href: "/pre-order", label: "Pre Order" },
   { href: "/about", label: "About" },
@@ -32,8 +33,8 @@ const EXPLORE = [
 const HELP = [
   { href: "/contact", label: "Contact" },
   { href: "/track-order", label: "Track Order" },
-  { href: "/contact#faq", label: "FAQs" },
-  { href: "/contact#delivery", label: "Delivery Info" },
+  { href: "/faqs", label: "FAQs" },
+  { href: "/testimonials", label: "Testimonials" },
 ];
 
 const LEGAL = [
@@ -70,6 +71,31 @@ function ColumnTitle({
 export function Footer() {
   const [email, setEmail] = useState("");
   const [sending, setSending] = useState(false);
+  const [contact, setContact] = useState({
+    phone: CONTACT.phone,
+    email: CONTACT.email,
+    whatsapp: CONTACT.whatsapp,
+    address: "",
+    city: "Islamabad",
+    instagram: "",
+  });
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((s) => {
+        if (!s || s.error) return;
+        setContact({
+          phone: s.phone || CONTACT.phone,
+          email: s.email || CONTACT.email,
+          whatsapp: s.whatsappNumber || CONTACT.whatsapp,
+          address: s.address || "",
+          city: s.city || "Islamabad",
+          instagram: s.socialLinks?.instagram || "",
+        });
+      })
+      .catch(() => {});
+  }, []);
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -243,7 +269,7 @@ export function Footer() {
                 </svg>
               </a>
               <a
-                href={`https://wa.me/${CONTACT.whatsapp}`}
+                href={`https://wa.me/${contact.whatsapp}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp"
@@ -259,24 +285,24 @@ export function Footer() {
         <div className="mt-12 rounded-2xl border border-gold/25 bg-cream/[0.07] px-4 py-4 backdrop-blur-[2px] sm:px-6">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:divide-x lg:divide-gold/20">
             <a
-              href={`https://wa.me/${CONTACT.whatsapp}`}
+              href={`https://wa.me/${contact.whatsapp}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 px-2 text-sm text-cream/85 transition hover:text-gold lg:justify-center"
             >
               <Phone className="h-4 w-4 shrink-0 text-gold" />
-              <span>{formatPhone(CONTACT.phone)}</span>
+              <span>{formatPhone(contact.phone)}</span>
             </a>
             <a
-              href={`mailto:${CONTACT.email}`}
+              href={`mailto:${contact.email}`}
               className="flex items-center gap-3 px-2 text-sm text-cream/85 transition hover:text-gold lg:justify-center"
             >
               <Mail className="h-4 w-4 shrink-0 text-gold" />
-              <span className="truncate">{CONTACT.email}</span>
+              <span className="truncate">{contact.email}</span>
             </a>
             <div className="flex items-center gap-3 px-2 text-sm text-cream/85 lg:justify-center">
               <MapPin className="h-4 w-4 shrink-0 text-gold" />
-              <span>Delivery Areas at Checkout</span>
+              <span>{contact.address || contact.city || "Delivery Areas at Checkout"}</span>
             </div>
             <div className="flex items-center gap-3 px-2 text-sm text-cream/85 lg:justify-center">
               <Clock className="h-4 w-4 shrink-0 text-gold" />

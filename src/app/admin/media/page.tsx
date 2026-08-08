@@ -49,7 +49,7 @@ export default function AdminMediaPage() {
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("folder", "yummilicious");
+    formData.append("folder", "misc");
 
     try {
       const res = await fetch("/api/upload", {

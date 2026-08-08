@@ -8,11 +8,9 @@ import { parsePagination, serialize, jsonValidationError } from "@/lib/api/helpe
 const gallerySchema = z.object({
   title: z.string().min(1),
   alt: z.string().min(1),
-  url: z.string().url(),
+  url: z.string().min(1),
   publicId: z.string().optional(),
-  category: z
-    .enum(["breakfast", "sandwiches", "rolls", "shawarma", "tea", "behind-the-scenes", "general"])
-    .optional(),
+  category: z.string().min(1).optional(),
   displayOrder: z.number().optional(),
   isActive: z.boolean().optional(),
 });

@@ -878,11 +878,13 @@ export const FALLBACK_SETTINGS = {
 };
 
 export function getProductImage(product: StoreProduct): string {
-  return (
+  const raw =
     product.featuredImage ||
     product.images?.[0]?.url ||
-    "/products/egg-sandwich.png"
-  );
+    "/products/egg-sandwich.png";
+  // Legacy disk uploads are unavailable on serverless hosts
+  if (raw.startsWith("/uploads/")) return "/products/egg-sandwich.png";
+  return raw;
 }
 
 export function resolveAddons(

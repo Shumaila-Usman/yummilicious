@@ -13,12 +13,18 @@ interface MenuClientProps {
   products: StoreProduct[];
   categories: StoreCategory[];
   addons?: StoreAddon[];
+  hero?: {
+    eyebrow?: string;
+    headline?: string;
+    subcopy?: string;
+  };
 }
 
 export function MenuClient({
   products,
   categories,
   addons = FALLBACK_ADDONS,
+  hero,
 }: MenuClientProps) {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") ?? "";
@@ -52,12 +58,15 @@ export function MenuClient({
       <div className="bg-surface py-12 lg:py-16">
         <div className="mx-auto max-w-7xl px-4 lg:px-6">
           <div className="mb-10 text-center">
-            <span className="font-script text-xl text-orange">Our Menu</span>
+            <span className="font-script text-xl text-orange">
+              {hero?.eyebrow || "Our Menu"}
+            </span>
             <h1 className="font-display mt-2 text-2xl font-bold text-burgundy sm:text-4xl">
-              Full Menu
+              {hero?.headline || "Full Menu"}
             </h1>
             <p className="mx-auto mt-3 max-w-xl px-1 text-sm text-muted sm:text-base">
-              Browse our homemade favourites — fresh breakfasts, shawarmas, rolls & more.
+              {hero?.subcopy ||
+                "Browse our homemade favourites — fresh breakfasts, shawarmas, rolls & more."}
             </p>
           </div>
 

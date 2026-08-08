@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { Plus, Trash2, GripVertical } from "lucide-react";
 import type { DietaryTag, IProductOption, IVariant, ISaleConfig, IInventory } from "@/types";
 import { cn } from "@/lib/utils/cn";
@@ -143,6 +144,7 @@ export function ProductForm({
   const [ingredientInput, setIngredientInput] = useState("");
   const [includeInput, setIncludeInput] = useState("");
   const [imageUrlInput, setImageUrlInput] = useState("");
+  const [tab, setTab] = useState<"listing" | "detail">("listing");
 
   const update = <K extends keyof ProductFormData>(key: K, value: ProductFormData[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -255,7 +257,34 @@ export function ProductForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <Section title="Basic Info">
+      <div className="flex gap-2 rounded-xl border border-burgundy/15 bg-cream p-1">
+        <button
+          type="button"
+          onClick={() => setTab("listing")}
+          className={cn(
+            "flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold transition",
+            tab === "listing" ? "bg-burgundy text-cream" : "text-brown hover:bg-burgundy/10"
+          )}
+        >
+          Listing / Card
+        </button>
+        <button
+          type="button"
+          onClick={() => setTab("detail")}
+          className={cn(
+            "flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold transition",
+            tab === "detail" ? "bg-burgundy text-cream" : "text-brown hover:bg-burgundy/10"
+          )}
+        >
+          Detail page
+        </button>
+      </div>
+
+      {tab === "listing" && (
+      <Section title="Menu listing (card)">
+        <p className="text-xs text-muted">
+          These fields update the main Menu page product cards.
+        </p>
         <div>
           <FieldLabel required>Name</FieldLabel>
           <TextInput value={form.name} onChange={(e) => update("name", e.target.value)} required />
@@ -266,15 +295,6 @@ export function ProductForm({
             value={form.shortDescription}
             onChange={(e) => update("shortDescription", e.target.value)}
             rows={2}
-            required
-          />
-        </div>
-        <div>
-          <FieldLabel required>Full Description</FieldLabel>
-          <TextArea
-            value={form.fullDescription}
-            onChange={(e) => update("fullDescription", e.target.value)}
-            rows={5}
             required
           />
         </div>
@@ -297,17 +317,43 @@ export function ProductForm({
               onChange={(e) => update("displayOrder", Number(e.target.value))}
             />
           </div>
-          <div>
-            <FieldLabel>Prep Time (minutes)</FieldLabel>
-            <TextInput
-              type="number"
-              min={0}
-              value={form.preparationTime ?? ""}
-              onChange={(e) =>
-                update("preparationTime", e.target.value ? Number(e.target.value) : undefined)
-              }
-            />
-          </div>
+        </div>
+        <ImageUploadField
+          label="Main / card image"
+          value={form.featuredImage}
+          folder="products"
+          onChange={(url) => {
+            update("featuredImage", url);
+            if (url && !form.images.some((i) => i.url === url)) {
+              update("images", [{ url, alt: form.name, order: 0 }, ...form.images]);
+            }
+          }}
+        />
+      </Section>
+      )}
+
+      {tab === "detail" && (
+      <>
+      <Section title="Detail page content">
+        <div>
+          <FieldLabel required>Full Description</FieldLabel>
+          <TextArea
+            value={form.fullDescription}
+            onChange={(e) => update("fullDescription", e.target.value)}
+            rows={5}
+            required
+          />
+        </div>
+        <div>
+          <FieldLabel>Prep Time (minutes)</FieldLabel>
+          <TextInput
+            type="number"
+            min={0}
+            value={form.preparationTime ?? ""}
+            onChange={(e) =>
+              update("preparationTime", e.target.value ? Number(e.target.value) : undefined)
+            }
+          />
         </div>
       </Section>
 
@@ -697,6 +743,8 @@ export function ProductForm({
           />
         </div>
       </Section>
+      </>
+      )}
 
       <div className="flex justify-end gap-3 pb-8">
         <Button type="submit" variant="secondary" loading={loading}>

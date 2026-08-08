@@ -8,11 +8,9 @@ import { serialize, jsonValidationError } from "@/lib/api/helpers";
 const galleryUpdateSchema = z.object({
   title: z.string().min(1).optional(),
   alt: z.string().min(1).optional(),
-  url: z.string().url().optional(),
+  url: z.string().min(1).optional(),
   publicId: z.string().optional(),
-  category: z
-    .enum(["breakfast", "sandwiches", "rolls", "shawarma", "tea", "behind-the-scenes", "general"])
-    .optional(),
+  category: z.string().min(1).optional(),
   displayOrder: z.number().optional(),
   isActive: z.boolean().optional(),
 });

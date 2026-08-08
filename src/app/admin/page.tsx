@@ -20,6 +20,13 @@ import {
   DollarSign,
   TrendingUp,
   AlertTriangle,
+  Package,
+  Users,
+  Image,
+  MessageSquareQuote,
+  FileText,
+  Settings,
+  PlusCircle,
 } from "lucide-react";
 import { adminFetch } from "@/components/admin/AdminProviders";
 import { StatCard } from "@/components/admin/StatCard";
@@ -34,6 +41,13 @@ interface DashboardData {
     pendingOrders: number;
     completedOrders: number;
     revenue: number;
+    productCount?: number;
+    categoryCount?: number;
+    customerCount?: number;
+    galleryCount?: number;
+    testimonialCount?: number;
+    faqCount?: number;
+    storeOpen?: boolean;
   };
   salesChart: { date: string; orders: number; revenue: number }[];
   categoryPerformance: { name: string; revenue: number; quantity: number }[];
@@ -69,9 +83,54 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="font-display text-3xl font-bold text-brown">Dashboard</h1>
-        <p className="text-sm text-muted">Overview of your store performance</p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="font-display text-3xl font-bold text-brown">Dashboard</h1>
+          <p className="text-sm text-muted">
+            Overview of your store ·{" "}
+            <span className={data?.stats.storeOpen === false ? "text-burgundy" : "text-green"}>
+              {data?.stats.storeOpen === false ? "Store closed" : "Store open"}
+            </span>
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href="/admin/pages/home"
+            className="inline-flex items-center gap-1.5 rounded-full border border-burgundy/20 bg-cream px-3 py-1.5 text-xs font-semibold text-burgundy hover:bg-burgundy hover:text-cream"
+          >
+            <FileText className="h-3.5 w-3.5" /> Edit Home
+          </Link>
+          <Link
+            href="/admin/products/new"
+            className="inline-flex items-center gap-1.5 rounded-full border border-burgundy/20 bg-cream px-3 py-1.5 text-xs font-semibold text-burgundy hover:bg-burgundy hover:text-cream"
+          >
+            <PlusCircle className="h-3.5 w-3.5" /> Add Product
+          </Link>
+          <Link
+            href="/admin/orders"
+            className="inline-flex items-center gap-1.5 rounded-full border border-burgundy/20 bg-cream px-3 py-1.5 text-xs font-semibold text-burgundy hover:bg-burgundy hover:text-cream"
+          >
+            <ShoppingBag className="h-3.5 w-3.5" /> Orders
+          </Link>
+          <Link
+            href="/admin/settings"
+            className="inline-flex items-center gap-1.5 rounded-full border border-burgundy/20 bg-cream px-3 py-1.5 text-xs font-semibold text-burgundy hover:bg-burgundy hover:text-cream"
+          >
+            <Settings className="h-3.5 w-3.5" /> Settings
+          </Link>
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard label="Products" value={data?.stats.productCount ?? 0} icon={Package} loading={loading} />
+        <StatCard label="Customers" value={data?.stats.customerCount ?? 0} icon={Users} loading={loading} />
+        <StatCard label="Gallery" value={data?.stats.galleryCount ?? 0} icon={Image} loading={loading} />
+        <StatCard
+          label="Testimonials / FAQs"
+          value={`${data?.stats.testimonialCount ?? 0} / ${data?.stats.faqCount ?? 0}`}
+          icon={MessageSquareQuote}
+          loading={loading}
+        />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">

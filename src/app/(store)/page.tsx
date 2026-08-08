@@ -17,6 +17,7 @@ import {
   type StoreProduct,
   type StoreCategory,
 } from "@/lib/data/fallback";
+import { getPageFields } from "@/lib/cms/get-page";
 
 function mapProduct(p: Record<string, unknown>): StoreProduct {
   const cats = (p.categories as Record<string, unknown>[] | undefined)?.map((c) => ({
@@ -89,11 +90,14 @@ async function getHomeData() {
 }
 
 export default async function HomePage() {
-  const { products, reviews } = await getHomeData();
+  const [{ products, reviews }, hero] = await Promise.all([
+    getHomeData(),
+    getPageFields("home", "hero"),
+  ]);
 
   return (
     <>
-      <Hero />
+      <Hero content={hero} />
       <FeaturedProducts products={products} />
       <StorySection />
       <BreakfastSpotlight products={products} />

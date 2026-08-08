@@ -7,6 +7,12 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "placehold.co" },
     ],
+    localPatterns: [
+      { pathname: "/api/uploads/**", search: "" },
+      { pathname: "/images/**", search: "" },
+      { pathname: "/products/**", search: "" },
+      { pathname: "/brand/**", search: "" },
+    ],
   },
 };
 
