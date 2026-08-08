@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { connectDB } from "@/lib/db/connect";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { Settings } from "@/models/Settings";
 import { getSettingsDoc, serialize, jsonValidationError } from "@/lib/api/helpers";
+
+const NO_STORE = { "Cache-Control": "no-store, must-revalidate" };
 
 const settingsUpdateSchema = z.object({
   brandName: z.string().optional(),
@@ -83,7 +86,10 @@ function stripSensitive(settings: Record<string, unknown>) {
 export async function GET() {
   try {
     const settings = await getSettingsDoc();
-    return NextResponse.json(serialize(stripSensitive(settings as Record<string, unknown>)));
+    return NextResponse.json(
+      serialize(stripSensitive(settings as Record<string, unknown>)),
+      { headers: NO_STORE }
+    );
   } catch (error) {
     console.error("GET /api/settings:", error);
     return NextResponse.json({ error: "Failed to fetch settings" }, { status: 500 });
@@ -107,6 +113,9 @@ export async function PATCH(request: NextRequest) {
 
     Object.assign(settings, parsed.data);
     await settings.save();
+
+    revalidatePath("/", "layout");
+    revalidatePath("/contact");
 
     return NextResponse.json(serialize(settings.toObject()));
   } catch (err) {

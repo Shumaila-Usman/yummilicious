@@ -50,6 +50,13 @@ export default function ContactPage() {
     city: "Islamabad",
     instagram: "",
   });
+  const [hero, setHero] = useState({
+    eyebrow: "Get in Touch",
+    headline: "We'd Love to Hear From You",
+    subcopy:
+      "Questions, feedback, catering, or just a craving — message us anytime. Fresh homemade replies, same as our food.",
+    image: "/images/home/kitchen.png",
+  });
   const {
     register,
     handleSubmit,
@@ -60,7 +67,7 @@ export default function ContactPage() {
   });
 
   useEffect(() => {
-    fetch("/api/settings")
+    fetch("/api/settings", { cache: "no-store" })
       .then((r) => r.json())
       .then((s) => {
         if (!s || s.error) return;
@@ -72,6 +79,24 @@ export default function ContactPage() {
           city: s.city || "Islamabad",
           instagram: s.socialLinks?.instagram || "",
         });
+      })
+      .catch(() => {});
+
+    fetch("/api/pages?slug=contact", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((page) => {
+        const fields = Object.fromEntries(
+          (page?.sections?.find((s: { key: string }) => s.key === "hero")?.fields || []).map(
+            (f: { key: string; value: string }) => [f.key, f.value]
+          )
+        ) as Record<string, string>;
+        if (!Object.keys(fields).length) return;
+        setHero((prev) => ({
+          eyebrow: fields.eyebrow || prev.eyebrow,
+          headline: fields.headline || prev.headline,
+          subcopy: fields.subcopy || prev.subcopy,
+          image: fields.image || prev.image,
+        }));
       })
       .catch(() => {});
   }, []);
@@ -105,12 +130,17 @@ export default function ContactPage() {
       <section className="relative overflow-hidden bg-[#FFF4DA]">
         <div className="absolute inset-0">
           <Image
-            src="/images/home/kitchen.png"
+            src={
+              hero.image?.startsWith("/uploads/")
+                ? "/images/home/kitchen.png"
+                : hero.image || "/images/home/kitchen.png"
+            }
             alt=""
             fill
             priority
             className="object-cover object-center opacity-[0.22]"
             sizes="100vw"
+            unoptimized={(hero.image || "").startsWith("/api/uploads/")}
           />
           <div
             className="absolute inset-0 bg-gradient-to-b from-[#FFF4DA]/85 via-[#FFF4DA]/92 to-[#fffaf0]"
@@ -129,15 +159,13 @@ export default function ContactPage() {
         <div className="relative z-10 mx-auto max-w-4xl px-4 pb-16 pt-14 text-center sm:px-6 lg:pb-20 lg:pt-20">
           <ScrollReveal>
             <span className="font-script text-2xl text-orange sm:text-3xl">
-              Get in Touch
+              {hero.eyebrow}
             </span>
             <h1 className="font-display mt-3 text-[2rem] font-bold tracking-tight text-burgundy sm:text-5xl lg:text-6xl">
-              We&apos;d Love to Hear
-              <br className="hidden sm:block" /> From You
+              {hero.headline}
             </h1>
             <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
-              Questions, feedback, catering, or just a craving — message us anytime.
-              Fresh homemade replies, same as our food.
+              {hero.subcopy}
             </p>
           </ScrollReveal>
 

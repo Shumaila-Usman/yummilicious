@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { connectDB } from "@/lib/db/connect";
 import { requireAdmin } from "@/lib/auth/require-admin";
@@ -10,6 +11,18 @@ import {
 } from "@/lib/cms/default-pages";
 import { ensureDefaultPages } from "@/lib/cms/get-page";
 import { serialize, jsonValidationError } from "@/lib/api/helpers";
+
+const SLUG_TO_PATH: Record<string, string> = {
+  home: "/",
+  about: "/about",
+  menu: "/menu",
+  gallery: "/gallery",
+  testimonials: "/testimonials",
+  faqs: "/faqs",
+  contact: "/contact",
+};
+
+const NO_STORE = { "Cache-Control": "no-store, must-revalidate" };
 
 const sectionSchema = z.object({
   key: z.string(),
@@ -35,7 +48,9 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: "Unknown page" }, { status: 404 });
       }
       const doc = await PageContent.findOne({ slug }).lean();
-      return NextResponse.json(serialize(mergePageWithDefaults(slug, doc)));
+      return NextResponse.json(serialize(mergePageWithDefaults(slug, doc)), {
+        headers: NO_STORE,
+      });
     }
 
     const docs = await PageContent.find().lean();
@@ -48,7 +63,7 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    return NextResponse.json({ pages });
+    return NextResponse.json({ pages }, { headers: NO_STORE });
   } catch (error) {
     console.error("GET /api/pages:", error);
     return NextResponse.json({ error: "Failed to load pages" }, { status: 500 });
@@ -85,6 +100,10 @@ export async function PUT(request: NextRequest) {
       },
       { upsert: true, new: true }
     ).lean();
+
+    const path = SLUG_TO_PATH[slug] || "/";
+    revalidatePath(path);
+    revalidatePath("/", "layout");
 
     return NextResponse.json(serialize(mergePageWithDefaults(slug, page)));
   } catch (err) {

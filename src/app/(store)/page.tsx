@@ -17,7 +17,11 @@ import {
   type StoreProduct,
   type StoreCategory,
 } from "@/lib/data/fallback";
-import { getPageFields } from "@/lib/cms/get-page";
+import { getPage, getSiteContact } from "@/lib/cms/get-page";
+import { fieldMap } from "@/lib/cms/default-pages";
+
+/** Always read fresh CMS content from MongoDB (admin edits must show immediately). */
+export const dynamic = "force-dynamic";
 
 function mapProduct(p: Record<string, unknown>): StoreProduct {
   const cats = (p.categories as Record<string, unknown>[] | undefined)?.map((c) => ({
@@ -90,22 +94,28 @@ async function getHomeData() {
 }
 
 export default async function HomePage() {
-  const [{ products, reviews }, hero] = await Promise.all([
+  const [{ products, reviews }, page, contact] = await Promise.all([
     getHomeData(),
-    getPageFields("home", "hero"),
+    getPage("home"),
+    getSiteContact(),
   ]);
+
+  const hero = fieldMap(page.sections, "hero");
+  const story = fieldMap(page.sections, "story");
+  const why = fieldMap(page.sections, "why");
+  const cta = fieldMap(page.sections, "cta");
 
   return (
     <>
       <Hero content={hero} />
       <FeaturedProducts products={products} />
-      <StorySection />
+      <StorySection content={story} />
       <BreakfastSpotlight products={products} />
       <RollShawarmaSection products={products} />
       <BreakfastDeals products={products} />
-      <WhyChoose />
+      <WhyChoose content={why} />
       <Reviews reviews={reviews} />
-      <FinalCTA />
+      <FinalCTA content={cta} whatsapp={contact.whatsapp} />
       <CravingBanner />
     </>
   );

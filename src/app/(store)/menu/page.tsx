@@ -3,6 +3,8 @@ import { fetchActiveAddons, fetchProducts, fetchCategories } from "@/lib/data/se
 import { getPageFields } from "@/lib/cms/get-page";
 import { MenuClient } from "./MenuClient";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Menu",
   description: "Browse Yummilicious full menu — breakfasts, shawarmas, paratha rolls, chai & more.",

@@ -4,6 +4,8 @@ import { PageHero } from "@/components/ui/PageHero";
 import { getPageFields } from "@/lib/cms/get-page";
 import { FaqAccordion } from "@/components/store/FaqAccordion";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "FAQs",
   description: "Frequently asked questions about ordering from Yummilicious.",

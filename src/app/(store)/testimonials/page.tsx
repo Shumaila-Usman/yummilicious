@@ -5,6 +5,8 @@ import { getPageFields } from "@/lib/cms/get-page";
 import { TestimonialsSlider } from "@/components/store/TestimonialsSlider";
 import { FALLBACK_REVIEWS } from "@/lib/data/fallback";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Testimonials",
   description: "What customers say about Yummilicious homemade food in Islamabad.",

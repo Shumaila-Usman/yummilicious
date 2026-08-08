@@ -7,6 +7,8 @@ import { fieldMap } from "@/lib/cms/default-pages";
 import { formatPhone } from "@/lib/utils/format";
 import { resolveMediaUrl } from "@/lib/uploads/types";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "About Us",
   description: "Learn about Yummilicious — homemade comfort food made with love in Islamabad.",

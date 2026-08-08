@@ -6,6 +6,8 @@ import { getPageFields } from "@/lib/cms/get-page";
 import { FALLBACK_GALLERY } from "@/lib/data/fallback";
 import { resolveMediaUrl } from "@/lib/uploads/types";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Gallery",
   description: "Photos from the Yummilicious kitchen — breakfasts, rolls, shawarma & more.",

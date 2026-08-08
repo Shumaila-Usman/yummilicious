@@ -15,7 +15,8 @@ export async function getPage(slug: PageSlug) {
     await connectDB();
     const doc = await PageContent.findOne({ slug }).lean();
     return mergePageWithDefaults(slug, doc);
-  } catch {
+  } catch (err) {
+    console.error(`[cms] getPage("${slug}") failed:`, err);
     return structuredClone(DEFAULT_PAGES[slug]);
   }
 }
