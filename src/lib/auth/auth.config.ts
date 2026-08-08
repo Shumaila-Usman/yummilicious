@@ -2,9 +2,10 @@ import type { NextAuthConfig } from "next-auth";
 
 /**
  * Edge-safe Auth.js config (no bcrypt / mongoose).
- * Used by middleware for JWT session checks only.
+ * Used by proxy.ts for JWT session checks only.
  */
 export const authConfig = {
+  trustHost: true,
   session: { strategy: "jwt", maxAge: 60 * 60 * 8 },
   pages: {
     signIn: "/admin/login",
@@ -33,5 +34,5 @@ export const authConfig = {
       return true;
     },
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
 } satisfies NextAuthConfig;

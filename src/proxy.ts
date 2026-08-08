@@ -4,6 +4,10 @@ import { authConfig } from "@/lib/auth/auth.config";
 
 const { auth } = NextAuth(authConfig);
 
+/**
+ * Next.js 16: `middleware.ts` renamed to `proxy.ts`.
+ * Protects /admin/* (except login) with Auth.js JWT session.
+ */
 export default auth((req) => {
   const isAdminRoute = req.nextUrl.pathname.startsWith("/admin");
   const isLogin = req.nextUrl.pathname === "/admin/login";

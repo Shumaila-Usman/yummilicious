@@ -2,13 +2,11 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/Button";
 import { toast } from "sonner";
 
 export default function AdminLoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,19 +17,30 @@ export default function AdminLoginPage() {
 
     try {
       const result = await signIn("credentials", {
-        email,
+        email: email.trim(),
         password,
         redirect: false,
+        callbackUrl: "/admin",
       });
 
-      if (result?.error) {
-        toast.error("Invalid email or password");
+      if (!result) {
+        toast.error("Login failed — auth service unavailable. Check AUTH_SECRET on the host.");
+        return;
+      }
+
+      if (result.error) {
+        // Auth.js often returns CredentialsSignin for bad password OR missing admin / DB errors
+        toast.error(
+          result.error === "Configuration"
+            ? "Server auth misconfigured. Set AUTH_SECRET and AUTH_URL on Vercel."
+            : "Invalid email/password, or database not connected (check MONGODB_URI)."
+        );
         return;
       }
 
       toast.success("Welcome back!");
-      router.push("/admin");
-      router.refresh();
+      // Full navigation so the session cookie is reliably picked up on deploy
+      window.location.assign(result.url || "/admin");
     } catch {
       toast.error("Login failed. Please try again.");
     } finally {
